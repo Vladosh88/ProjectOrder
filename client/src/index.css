@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply transition-colors duration-200;
+}
+
+@layer components {
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-accent transition-colors;
+  }
+
+  .btn-primary {
+    @apply px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg font-medium transition-colors text-sm disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+  }
+
+  .btn-danger {
+    @apply px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm transition-colors;
+  }
+}
+
+@layer utilities {
+  .animate-fadeIn {
+    animation: fadeIn 0.2s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  code        String?  @unique
+  title       String
+  description String?
+  price       Decimal? @db.Decimal(10, 2)
+  deadline    DateTime? @db.Timestamptz(6)
+  status      Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  files       File[]
+
+  @@map("orders")
+}
+
+model File {
+  id        Int      @id @default(autoincrement())
+  orderId   Int      @map("order_id")
+  publicId  String   @map("public_id")
+  url       String
+  format    String?
+  size      Int?
+  createdAt DateTime @default(now()) @map("created_at")
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("files")
+}
