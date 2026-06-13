@@ -63,7 +63,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { code, title, description, price, deadline, files } = req.body;
+    const { code, title, description, price, workPrice, paid, manager, deadline, files } = req.body;
 
     const order = await prisma.order.create({
       data: {
@@ -71,6 +71,9 @@ router.post('/', async (req, res) => {
         title,
         description: description || null,
         price: price ? parseFloat(price) : null,
+        workPrice: workPrice ? parseFloat(workPrice) : null,
+        paid: paid || false,
+        manager: manager || null,
         deadline: deadline ? new Date(deadline) : null,
         status: 0,
         files: files?.length
@@ -92,7 +95,7 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    const { code, title, description, price, deadline, status, files } = req.body;
+    const { code, title, description, price, workPrice, paid, manager, deadline, status, files } = req.body;
     const id = parseInt(req.params.id);
 
     const updateData = {};
@@ -100,6 +103,9 @@ router.put('/:id', async (req, res) => {
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (price !== undefined) updateData.price = price ? parseFloat(price) : null;
+    if (workPrice !== undefined) updateData.workPrice = workPrice ? parseFloat(workPrice) : null;
+    if (paid !== undefined) updateData.paid = paid;
+    if (manager !== undefined) updateData.manager = manager || null;
     if (deadline !== undefined) updateData.deadline = deadline ? new Date(deadline) : null;
     if (status !== undefined) updateData.status = parseInt(status);
 
@@ -174,6 +180,9 @@ router.post('/:id/duplicate', async (req, res) => {
         title: `${original.title} (копия)`,
         description: original.description,
         price: original.price,
+        workPrice: original.workPrice,
+        paid: original.paid,
+        manager: original.manager,
         deadline: original.deadline,
         status: 0,
       },

@@ -14,7 +14,9 @@ router.get('/csv', async (req, res) => {
       title: o.title,
       description: o.description || '',
       price: o.price ? parseFloat(o.price) : '',
-      price_with_tax: o.price ? (parseFloat(o.price) * 1.04).toFixed(2) : '',
+      work_price: o.workPrice ? parseFloat(o.workPrice) : '',
+      paid: o.paid ? 'Да' : 'Нет',
+      manager: o.manager || '',
       deadline: o.deadline ? o.deadline.toISOString() : '',
       status: o.status === 0 ? 'В работе' : 'Готово',
       files: o.files.map((f) => f.url).join('; '),
@@ -23,7 +25,7 @@ router.get('/csv', async (req, res) => {
 
     const csv = stringify(rows, {
       header: true,
-      columns: ['id', 'code', 'title', 'description', 'price', 'price_with_tax', 'deadline', 'status', 'files', 'created_at'],
+      columns: ['id', 'code', 'title', 'description', 'price', 'work_price', 'paid', 'manager', 'deadline', 'status', 'files', 'created_at'],
       bom: true,
     });
 

@@ -25,14 +25,17 @@ npx prisma generate      # генерация клиента
 ## Переменные окружения
 
 ### server/.env
-- `DATABASE_URL` — PostgreSQL connection string (Supabase)
+- `NODE_ENV` — `production` на VPS
+- `HOST` — `127.0.0.1` за nginx, `0.0.0.0` локально
+- `PORT` — порт сервера (по умолчанию 3001)
+- `DATABASE_URL` — PostgreSQL connection string (локальный postgres на VPS)
 - `AUTH_LOGIN` / `AUTH_PASSWORD` — логин и пароль для авторизации
 - `JWT_SECRET` — секрет для подписи JWT
+- `CORS_ORIGIN` — прод-домен (например `https://example.com`), используется только при `NODE_ENV=production`
 - `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET`
-- `PORT` — порт сервера (по умолчанию 3001)
 
 ### client
-- `VITE_API_BASE_URL` — URL бэкенда (для продакшена, при деплое на Vercel)
+- `VITE_API_BASE_URL` — не требуется при деплое на тот же домен (фронт и API на одном хосте, axios идёт по относительному `/api`)
 
 ## Стек
 
@@ -45,7 +48,13 @@ JWT на базе env-переменных. POST /api/login проверяет c
 
 ## Деплой
 
-- Frontend: Vercel (cd client && vite build)
-- Backend: Render (node server/src/index.js)
-- БД: Supabase (PostgreSQL)
-- Файлы: Cloudinary (signed upload)
+Хостинг — один VPS Ubuntu 22.04/24.04. Стек: nginx (TLS + статика + reverse proxy) → Node.js под PM2 → локальный PostgreSQL. Файлы — Cloudinary.
+
+Полная инструкция: [`deploy/INSTALL.md`](deploy/INSTALL.md).
+
+Артефакты деплоя:
+- `deploy/nginx.conf` — конфиг сайта (SPA fallback, `/api` → `127.0.0.1:3001`, gzip, `client_max_body_size 25M`)
+- `deploy/ecosystem.config.cjs` — PM2 (1 fork, autorestart, логи в `logs/`)
+- `deploy/deploy.sh` — обновление: `git pull` → `npm ci` → `prisma migrate deploy` → `vite build` → `pm2 reload`
+
+Прод-сервер слушает `127.0.0.1:3001` (наружу не торчит), Postgres — только loopback. SSL — Let's Encrypt через `certbot --nginx`.

@@ -13,6 +13,9 @@ model Order {
   title       String
   description String?
   price       Decimal? @db.Decimal(10, 2)
+  workPrice   Decimal? @db.Decimal(10, 2) @map("work_price")
+  paid        Boolean  @default(false)
+  manager     String?
   deadline    DateTime? @db.Timestamptz(6)
   status      Int      @default(0)
   createdAt   DateTime @default(now()) @map("created_at")

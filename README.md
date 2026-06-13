@@ -60,31 +60,24 @@ npm run dev
 Клиент: http://localhost:5173
 Сервер: http://localhost:3001
 
+Для локальной разработки в `server/.env` ставь `HOST=0.0.0.0` (или не задавай — сервер сам возьмёт `0.0.0.0`) и `NODE_ENV=development`. На VPS — `HOST=127.0.0.1` и `NODE_ENV=production`.
+
 ## Деплой
 
-### Frontend → Vercel
+Один VPS Ubuntu 22.04/24.04: nginx + PM2 + PostgreSQL + Let's Encrypt.
 
-1. Подключить репозиторий
-2. Root Directory: `client`
-3. Build Command: `npm run build`
-4. Output Directory: `dist`
-5. Environment Variables:
-   - `VITE_API_BASE_URL` = URL бэкенда на Render
+Полная инструкция — [`deploy/INSTALL.md`](deploy/INSTALL.md).
 
-### Backend → Render
+Кратко:
 
-1. New Web Service → подключить репозиторий
-2. Root Directory: `server`
-3. Build Command: `npm install && npx prisma generate`
-4. Start Command: `node src/index.js`
-5. Environment Variables: все из `.env.example`
+1. Установить Node 20, PostgreSQL 16, nginx, certbot, PM2.
+2. Клонировать репозиторий в `/var/www/photoorder`, заполнить `server/.env`.
+3. `npm ci` → `npx prisma migrate deploy` → `npm run build -w client`.
+4. `pm2 start deploy/ecosystem.config.cjs` + `pm2 save` + `pm2 startup`.
+5. Скопировать `deploy/nginx.conf` в `/etc/nginx/sites-available/`, заменить `YOUR_DOMAIN`, активировать.
+6. `sudo certbot --nginx -d your-domain.tld`.
 
-### БД → Supabase
-
-1. Создать проект на supabase.com
-2. Settings → Database → Connection string (URI)
-3. Подставить в `DATABASE_URL`
-4. Выполнить `npx prisma db push` из папки `server/`
+Обновление: `bash deploy/deploy.sh` (`git pull` → сборка → `pm2 reload`).
 
 ### Cloudinary
 
@@ -98,4 +91,4 @@ npm run dev
 |------|-----------|
 | Frontend | React 18, Vite, Tailwind CSS, Zustand, React Hook Form, Zod, @dnd-kit, axios |
 | Backend | Node.js, Express, Prisma, PostgreSQL, Cloudinary SDK, jsonwebtoken |
-| Хостинг | Vercel (фронт), Render (бэк), Supabase (БД), Cloudinary (файлы) |
+| Хостинг | Ubuntu VPS (nginx + PM2 + PostgreSQL), Cloudinary (файлы) |

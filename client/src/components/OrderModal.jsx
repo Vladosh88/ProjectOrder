@@ -13,6 +13,9 @@ const schema = z.object({
   title: z.string().min(1, 'Название обязательно').max(255),
   description: z.string().optional(),
   price: z.string().optional(),
+  workPrice: z.string().optional(),
+  paid: z.boolean().optional(),
+  manager: z.string().optional(),
   deadline: z.string().optional(),
   status: z.string(),
 });
@@ -23,11 +26,9 @@ export default function OrderModal({ orderId, onClose, onUpdated }) {
   const [submitting, setSubmitting] = useState(false);
   const { updateOrder: updateLocal, removeOrder, addOrder } = useOrderStore();
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
   });
-
-  const price = watch('price');
 
   useEffect(() => {
     fetchOrder(orderId).then(({ data }) => {
@@ -38,6 +39,9 @@ export default function OrderModal({ orderId, onClose, onUpdated }) {
         title: data.title,
         description: data.description || '',
         price: data.price ? String(parseFloat(data.price)) : '',
+        workPrice: data.workPrice ? String(parseFloat(data.workPrice)) : '',
+        paid: data.paid || false,
+        manager: data.manager || '',
         deadline: data.deadline ? data.deadline.slice(0, 16) : '',
         status: String(data.status),
       });
@@ -53,6 +57,9 @@ export default function OrderModal({ orderId, onClose, onUpdated }) {
       const payload = {
         ...data,
         price: data.price ? parseFloat(data.price) : null,
+        workPrice: data.workPrice ? parseFloat(data.workPrice) : null,
+        paid: data.paid || false,
+        manager: data.manager || null,
         deadline: data.deadline || null,
         status: parseInt(data.status),
         files: files.map((f) => ({ publicId: f.publicId || f.public_id, url: f.url, format: f.format, size: f.size })),
@@ -95,9 +102,6 @@ export default function OrderModal({ orderId, onClose, onUpdated }) {
 
   if (!order) return null;
 
-  const priceNum = parseFloat(price) || 0;
-  const priceWithTax = priceNum > 0 ? (priceNum * 1.04).toFixed(2) : '';
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div
@@ -121,16 +125,30 @@ export default function OrderModal({ orderId, onClose, onUpdated }) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Стоимость (₽)</label>
+              <label className="block text-sm font-medium mb-1">Стоимость товара (₽)</label>
               <input type="number" step="0.01" min="0" {...register('price')} className="input-field" />
-              {priceWithTax && (
-                <p className="text-xs text-gray-500 mt-1">+4%: {priceWithTax} ₽</p>
-              )}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Срок выполнения</label>
-              <input type="datetime-local" {...register('deadline')} className="input-field" />
+              <label className="block text-sm font-medium mb-1">Стоимость работы (₽)</label>
+              <input type="number" step="0.01" min="0" {...register('workPrice')} className="input-field" />
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <input type="checkbox" id="paid-edit" {...register('paid')} className="w-4 h-4 rounded border-gray-300 text-accent focus:ring-accent" />
+            <label htmlFor="paid-edit" className="text-sm font-medium">Оплачено</label>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Менеджер</label>
+            <select {...register('manager')} className="input-field">
+              <option value="">Не выбран</option>
+              <option value="Даша">Даша</option>
+              <option value="Аня">Аня</option>
+              <option value="Алина">Алина</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Срок выполнения</label>
+            <input type="datetime-local" {...register('deadline')} className="input-field" />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Статус</label>

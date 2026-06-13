@@ -32,14 +32,21 @@ export default function OrderCard({ order, onClick, onDelete }) {
           {order.code && (
             <p className="text-xs text-gray-500 dark:text-gray-400">{order.code}</p>
           )}
-          <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
-            {order.price && <span>{parseFloat(order.price).toLocaleString('ru-RU')} ₽</span>}
+          <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
+            {order.price && <span>Товар: {parseFloat(order.price).toLocaleString('ru-RU')} ₽</span>}
+            {order.workPrice && <span>Работа: {parseFloat(order.workPrice).toLocaleString('ru-RU')} ₽</span>}
+            <span className={order.paid ? 'text-green-600 dark:text-green-400' : 'text-orange-500 dark:text-orange-400'}>
+              {order.paid ? 'Оплачено' : 'Неоплачено'}
+            </span>
             {order.deadline && (
               <span className={isOverdue ? 'text-red-500 font-medium' : ''}>
                 {new Date(order.deadline).toLocaleDateString('ru-RU')}
               </span>
             )}
           </div>
+          {order.manager && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Менеджер: {order.manager}</p>
+          )}
           {isOverdue && (
             <span className="inline-block mt-1 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-full">
               Просрочен

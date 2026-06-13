@@ -12,6 +12,9 @@ const schema = z.object({
   title: z.string().min(1, 'Название обязательно').max(255),
   description: z.string().optional(),
   price: z.string().optional(),
+  workPrice: z.string().optional(),
+  paid: z.boolean().optional(),
+  manager: z.string().optional(),
   deadline: z.string().optional(),
 });
 
@@ -22,6 +25,7 @@ export default function CreateOrderModal({ onClose, onCreated }) {
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
+    defaultValues: { paid: false },
   });
 
   const onSubmit = async (data) => {
@@ -30,6 +34,9 @@ export default function CreateOrderModal({ onClose, onCreated }) {
       const payload = {
         ...data,
         price: data.price ? parseFloat(data.price) : null,
+        workPrice: data.workPrice ? parseFloat(data.workPrice) : null,
+        paid: data.paid || false,
+        manager: data.manager || null,
         deadline: data.deadline || null,
         files: files.map((f) => ({ publicId: f.publicId, url: f.url, format: f.format, size: f.size })),
       };
@@ -44,8 +51,6 @@ export default function CreateOrderModal({ onClose, onCreated }) {
       setSubmitting(false);
     }
   };
-
-  const price = parseFloat(document.querySelector('[name="price"]')?.value || '0');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
@@ -70,15 +75,31 @@ export default function CreateOrderModal({ onClose, onCreated }) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Стоимость (₽)</label>
+              <label className="block text-sm font-medium mb-1">Стоимость товара (₽)</label>
               <input type="number" step="0.01" min="0" {...register('price')} className="input-field" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Срок выполнения</label>
-              <input type="datetime-local" {...register('deadline')} className="input-field" />
+              <label className="block text-sm font-medium mb-1">Стоимость работы (₽)</label>
+              <input type="number" step="0.01" min="0" {...register('workPrice')} className="input-field" />
             </div>
           </div>
-          <PriceWithTax register={register} />
+          <div className="flex items-center gap-2">
+            <input type="checkbox" id="paid-create" {...register('paid')} className="w-4 h-4 rounded border-gray-300 text-accent focus:ring-accent" />
+            <label htmlFor="paid-create" className="text-sm font-medium">Оплачено</label>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Менеджер</label>
+            <select {...register('manager')} className="input-field">
+              <option value="">Не выбран</option>
+              <option value="Даша">Даша</option>
+              <option value="Аня">Аня</option>
+              <option value="Алина">Алина</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Срок выполнения</label>
+            <input type="datetime-local" {...register('deadline')} className="input-field" />
+          </div>
           <div>
             <label className="block text-sm font-medium mb-2">Файлы</label>
             <FileUploader files={files} onChange={setFiles} />
@@ -91,14 +112,6 @@ export default function CreateOrderModal({ onClose, onCreated }) {
           </div>
         </form>
       </div>
-    </div>
-  );
-}
-
-function PriceWithTax({ register }) {
-  return (
-    <div className="text-xs text-gray-500 dark:text-gray-400">
-      Стоимость +4% (налог) рассчитывается автоматически при просмотре
     </div>
   );
 }
