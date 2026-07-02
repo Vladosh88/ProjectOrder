@@ -17,7 +17,7 @@ export default function Header({ onCreateClick }) {
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-3 mb-6">
-      <h1 className="text-2xl font-bold">PhotoOrder</h1>
+      <h1 className="text-2xl font-bold">Фото-отзывы WB</h1>
       <div className="flex items-center gap-2">
         <button
           onClick={onCreateClick}

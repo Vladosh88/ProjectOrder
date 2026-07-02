@@ -27,7 +27,7 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="bg-white dark:bg-gray-800 rounded-card shadow-lg p-8 w-full max-w-sm space-y-4"
       >
-        <h1 className="text-2xl font-bold text-center">PhotoOrder</h1>
+        <h1 className="text-2xl font-bold text-center">Фото-отзывы WB</h1>
         <input
           type="text"
           placeholder="Логин"
