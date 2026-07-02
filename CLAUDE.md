@@ -50,10 +50,12 @@ JWT на базе env-переменных. POST /api/login проверяет c
 
 Хостинг — один VPS Ubuntu 22.04/24.04. Стек: nginx (TLS + статика + reverse proxy) → Node.js под PM2 → локальный PostgreSQL. Файлы — Cloudinary.
 
+**DNS:** A-запись домена указывает напрямую на IP VPS. Cloudflare **не используется как proxy** (DNS-only, серый облако), так как Cloudflare proxy严重限速 для российских VPS.
+
 Полная инструкция: [`deploy/INSTALL.md`](deploy/INSTALL.md).
 
 Артефакты деплоя:
-- `deploy/nginx.conf` — конфиг сайта (SPA fallback, `/api` → `127.0.0.1:3001`, gzip, `client_max_body_size 25M`)
+- `deploy/nginx.conf` — конфиг сайта (SPA fallback, `/api` → `127.0.0.1:3001`, gzip, sendfile, `client_max_body_size 25M`)
 - `deploy/ecosystem.config.cjs` — PM2 (1 fork, autorestart, логи в `logs/`)
 - `deploy/deploy.sh` — обновление: `git pull` → `npm ci` → `prisma migrate deploy` → `vite build` → `pm2 reload`
 

@@ -11,7 +11,7 @@ echo "==> npm ci (root + workspaces)"
 npm ci
 
 echo "==> prisma: generate + migrate deploy"
-( cd server && npx prisma generate && npx prisma migrate deploy )
+( cd server && npx prisma generate && npx prisma db push )
 
 echo "==> client: build"
 ( cd client && npm run build )

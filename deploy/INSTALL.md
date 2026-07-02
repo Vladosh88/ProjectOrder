@@ -4,7 +4,7 @@
 
 Стек на сервере: nginx (reverse proxy + статика) → Node.js 20 LTS под PM2 → PostgreSQL 16. TLS — Let's Encrypt через certbot.
 
-Допущения: домен уже куплен, A-запись смотрит на IP VPS. Подключение по ssh root@IP.
+Допущения: домен уже куплен, A-запись смотрит напрямую на IP VPS (без Cloudflare proxy — DNS-only или прямой A-запись). Подключение по ssh root@IP.
 
 ---
 
@@ -133,6 +133,7 @@ curl -i http://127.0.0.1:3001/api/health
 ```bash
 cp deploy/nginx.conf /etc/nginx/sites-available/photoorder
 sed -i 's/YOUR_DOMAIN/your-domain.tld/g' /etc/nginx/sites-available/photoorder
+# sed -i 's/nastyawb.online/nastyawb.online/g' /etc/nginx/sites-available/photoorder
 ln -sf /etc/nginx/sites-available/photoorder /etc/nginx/sites-enabled/photoorder
 rm -f /etc/nginx/sites-enabled/default
 nginx -t
@@ -143,6 +144,7 @@ systemctl reload nginx
 
 ```bash
 certbot --nginx -d your-domain.tld
+# certbot --nginx -d nastyawb.online
 ```
 
 Certbot сам перепишет конфиг на 443 и настроит редирект с 80. Проверка автообновления:
@@ -151,6 +153,8 @@ Certbot сам перепишет конфиг на 443 и настроит ре
 systemctl status certbot.timer
 certbot renew --dry-run
 ```
+
+> **Важно:** Если используется Cloudflare — переключи A-запись на DNS-only (серый облако) перед запуском certbot, иначе сертификат будет оформлен на Cloudflare, а не на VPS.
 
 ## 13. Финальная проверка
 
@@ -209,4 +213,30 @@ mkdir -p /var/backups && chown postgres:postgres /var/backups
 - **Prisma: can't reach database** — пароль в `DATABASE_URL` или Postgres не запущен. `sudo systemctl status postgresql`.
 - **413 Request Entity Too Large** — увеличить `client_max_body_size` в `nginx.conf`.
 - **PM2 не стартует после ребута** — повторно выполнить `pm2 startup` и `pm2 save`.
+- **Сайт бесконечно грузится (ERR_CONNECTION_RESET)** — если используется Cloudflare proxy (оранжевый облако), он может严重限速度 для российских VPS. Решение: переключить DNS-запись на DNS-only (серый облако) и использовать SSL через certbot напрямую.
 
+После правок на локальном компьютере:
+
+  1. Коммит и пуш:
+  git add .
+  git commit -m "описание изменений"
+  git push
+
+  2. На VPS (зайти по ssh root@IP):
+  cd /var/www/photoorder
+  bash deploy/deploy.sh
+
+  Скрипт сам сделает git pull → установит зависимости → пересоберёт фронт → перезапустит сервер через    
+  PM2. Даунтайм — пара секунд.
+
+  Если правка только во фронтенде (текст, стили, компоненты) — можно быстрее:
+  cd /var/www/photoorder
+  git pull
+  cd client && npm run build
+  PM2 перезапускать не нужно — nginx отдаёт статику напрямую из client/dist.
+
+  Если правка только в бэкенде (роуты, логика):
+  cd /var/www/photoorder
+  git pull
+  pm2 reload photoorder
+  Пересборка фронта не нужна.
