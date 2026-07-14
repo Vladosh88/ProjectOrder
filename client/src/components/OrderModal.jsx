@@ -16,6 +16,7 @@ const schema = z.object({
   workPrice: z.string().optional(),
   paid: z.boolean().optional(),
   manager: z.string().optional(),
+  startDate: z.string().optional(),
   deadline: z.string().optional(),
   status: z.string(),
 });
@@ -42,6 +43,7 @@ export default function OrderModal({ orderId, onClose, onUpdated }) {
         workPrice: data.workPrice ? String(parseFloat(data.workPrice)) : '',
         paid: data.paid || false,
         manager: data.manager || '',
+        startDate: data.startDate ? data.startDate.slice(0, 10) : '',
         deadline: data.deadline ? data.deadline.slice(0, 16) : '',
         status: String(data.status),
       });
@@ -60,6 +62,7 @@ export default function OrderModal({ orderId, onClose, onUpdated }) {
         workPrice: data.workPrice ? parseFloat(data.workPrice) : null,
         paid: data.paid || false,
         manager: data.manager || null,
+        startDate: data.startDate || null,
         deadline: data.deadline || null,
         status: parseInt(data.status),
         files: files.map((f) => ({ publicId: f.publicId || f.public_id, url: f.url, format: f.format, size: f.size })),
@@ -145,6 +148,10 @@ export default function OrderModal({ orderId, onClose, onUpdated }) {
               <option value="Аня">Аня</option>
               <option value="Алина">Алина</option>
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Дата начала заказа</label>
+            <input type="date" {...register('startDate')} className="input-field" />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Срок выполнения</label>

@@ -15,6 +15,7 @@ const schema = z.object({
   workPrice: z.string().optional(),
   paid: z.boolean().optional(),
   manager: z.string().optional(),
+  startDate: z.string().optional(),
   deadline: z.string().optional(),
 });
 
@@ -37,6 +38,7 @@ export default function CreateOrderModal({ onClose, onCreated }) {
         workPrice: data.workPrice ? parseFloat(data.workPrice) : null,
         paid: data.paid || false,
         manager: data.manager || null,
+        startDate: data.startDate || null,
         deadline: data.deadline || null,
         files: files.map((f) => ({ publicId: f.publicId, url: f.url, format: f.format, size: f.size })),
       };
@@ -95,6 +97,10 @@ export default function CreateOrderModal({ onClose, onCreated }) {
               <option value="Аня">Аня</option>
               <option value="Алина">Алина</option>
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Дата начала заказа</label>
+            <input type="date" {...register('startDate')} className="input-field" />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Срок выполнения</label>

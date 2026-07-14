@@ -9,13 +9,14 @@ datasource db {
 
 model Order {
   id          Int      @id @default(autoincrement())
-  code        String?  @unique
+  code        String?
   title       String
   description String?
   price       Decimal? @db.Decimal(10, 2)
   workPrice   Decimal? @db.Decimal(10, 2) @map("work_price")
   paid        Boolean  @default(false)
   manager     String?
+  startDate   DateTime? @db.Timestamptz(6) @map("start_date")
   deadline    DateTime? @db.Timestamptz(6)
   status      Int      @default(0)
   createdAt   DateTime @default(now()) @map("created_at")

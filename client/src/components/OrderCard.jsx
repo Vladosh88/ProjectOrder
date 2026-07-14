@@ -38,9 +38,19 @@ export default function OrderCard({ order, onClick, onDelete }) {
             <span className={order.paid ? 'text-green-600 dark:text-green-400' : 'text-orange-500 dark:text-orange-400'}>
               {order.paid ? 'Оплачено' : 'Неоплачено'}
             </span>
-            {order.deadline && (
-              <span className={isOverdue ? 'text-red-500 font-medium' : ''}>
-                {new Date(order.deadline).toLocaleDateString('ru-RU')}
+            {(order.startDate || order.deadline) && (
+              <span className="flex items-center gap-1">
+                {order.startDate && (
+                  <span className="text-green-600 dark:text-green-400">
+                    {new Date(order.startDate).toLocaleDateString('ru-RU')}
+                  </span>
+                )}
+                {order.startDate && order.deadline && <span>—</span>}
+                {order.deadline && (
+                  <span className={isOverdue ? 'text-red-500 font-medium' : ''}>
+                    {new Date(order.deadline).toLocaleDateString('ru-RU')}
+                  </span>
+                )}
               </span>
             )}
           </div>

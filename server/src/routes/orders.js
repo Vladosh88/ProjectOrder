@@ -63,7 +63,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { code, title, description, price, workPrice, paid, manager, deadline, files } = req.body;
+    const { code, title, description, price, workPrice, paid, manager, startDate, deadline, files } = req.body;
 
     const order = await prisma.order.create({
       data: {
@@ -74,6 +74,7 @@ router.post('/', async (req, res) => {
         workPrice: workPrice ? parseFloat(workPrice) : null,
         paid: paid || false,
         manager: manager || null,
+        startDate: startDate ? new Date(startDate) : null,
         deadline: deadline ? new Date(deadline) : null,
         status: 0,
         files: files?.length
@@ -86,16 +87,13 @@ router.post('/', async (req, res) => {
     res.status(201).json(order);
   } catch (err) {
     console.error(err);
-    if (err.code === 'P2002') {
-      return res.status(400).json({ error: 'Order code already exists' });
-    }
     res.status(500).json({ error: 'Failed to create order' });
   }
 });
 
 router.put('/:id', async (req, res) => {
   try {
-    const { code, title, description, price, workPrice, paid, manager, deadline, status, files } = req.body;
+    const { code, title, description, price, workPrice, paid, manager, startDate, deadline, status, files } = req.body;
     const id = parseInt(req.params.id);
 
     const updateData = {};
@@ -106,6 +104,7 @@ router.put('/:id', async (req, res) => {
     if (workPrice !== undefined) updateData.workPrice = workPrice ? parseFloat(workPrice) : null;
     if (paid !== undefined) updateData.paid = paid;
     if (manager !== undefined) updateData.manager = manager || null;
+    if (startDate !== undefined) updateData.startDate = startDate ? new Date(startDate) : null;
     if (deadline !== undefined) updateData.deadline = deadline ? new Date(deadline) : null;
     if (status !== undefined) updateData.status = parseInt(status);
 
@@ -142,9 +141,6 @@ router.put('/:id', async (req, res) => {
     res.json(order);
   } catch (err) {
     console.error(err);
-    if (err.code === 'P2002') {
-      return res.status(400).json({ error: 'Order code already exists' });
-    }
     res.status(500).json({ error: 'Failed to update order' });
   }
 });
@@ -183,6 +179,7 @@ router.post('/:id/duplicate', async (req, res) => {
         workPrice: original.workPrice,
         paid: original.paid,
         manager: original.manager,
+        startDate: original.startDate,
         deadline: original.deadline,
         status: 0,
       },
